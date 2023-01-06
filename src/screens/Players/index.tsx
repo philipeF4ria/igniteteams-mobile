@@ -8,6 +8,7 @@ import { PlayerStorageDTO } from '@storage/players/PlayerStorageDTO';
 
 import { addPlayerByGroup } from '@storage/players/addPlayerByGroup';
 import { getPlayersByGroupAndTeam } from '@storage/players/getPlayerByGroupAndTeam';
+import { removePlayerByGroup } from '@storage/players/removePlayerByGroup';
 
 import { Header } from '@components/Header';
 import { Highlight } from '@components/Highlight';
@@ -33,6 +34,17 @@ function Players() {
   const { group } = route.params as RouteParams;
 
   const newPlayerNameInputRef = useRef<TextInput>(null);
+
+  async function fetchPlayersByTeam() {
+    try {
+      const playersByTeam = await getPlayersByGroupAndTeam(group, team);
+
+      setPlayers(playersByTeam);
+
+    } catch(error) {
+      Alert.alert('Jogadores', 'Não foi possível carregar as pessoas do time selecionado');
+    }
+  }
 
   async function handleAddPlayer() {
     if (!newPlayerName.trim()) {
@@ -61,14 +73,12 @@ function Players() {
     }
   }
 
-  async function fetchPlayersByTeam() {
+  async function handleRemovePlayer(playerName: string) {
     try {
-      const playersByTeam = await getPlayersByGroupAndTeam(group, team);
-
-      setPlayers(playersByTeam);
-
+      await removePlayerByGroup(playerName, group);
+      fetchPlayersByTeam();
     } catch(error) {
-      Alert.alert('Jogadores', 'Não foi possível carregar as pessoas do time selecionado');
+      Alert.alert('Remover jogador', 'Não foi possível remover o jogador');
     }
   }
 
@@ -119,7 +129,7 @@ function Players() {
         renderItem={({ item }) => (
           <PlayerCard 
             name={item.name}
-            onRemove={() => {}}
+            onRemove={() => handleRemovePlayer(item.name)}
           />
         )}
         ListEmptyComponent={() => (
