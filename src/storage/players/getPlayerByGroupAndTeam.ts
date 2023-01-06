@@ -6,8 +6,6 @@ async function getPlayersByGroupAndTeam(group: string, team: string) {
 
     const players = storage.filter(player => player.team === team);
 
-    console.log(players);
-
     return players;
 
   } catch(error) {
